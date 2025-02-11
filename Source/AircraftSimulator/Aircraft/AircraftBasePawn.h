@@ -19,6 +19,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	float CalculateApplyGravity();
+
+	float CalculateCurrentSpeed(float DeltaTime);
+
+	void PrintStats();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -38,19 +44,22 @@ public:
 	void UpdatePosition(float DeltaTime);
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
-	float MinThrustSpeed = 4000;
+	float MinThrustNotToFallSpeed = 4000;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
-	float MaxThrustNotToFallSpeed = 10000;
+	float MaxThrust = 10000;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
 	float Gravity = 9800;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float CurrentThrust;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
+	float Drag = 0.25;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float CurrentSpeed;
+	float CurrentThrust = 0;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float CurrentSpeed = 0;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FVector NewPosition;
@@ -58,4 +67,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float AppliedGravity = 0;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FHitResult OutHit;
 };

@@ -5,6 +5,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputActionValue.h"
 
 // Sets default values
 AAircraftBasePawn::AAircraftBasePawn()
@@ -25,9 +28,9 @@ AAircraftBasePawn::AAircraftBasePawn()
 // Called when the game starts or when spawned
 void AAircraftBasePawn::BeginPlay()
 {
+	CurrentThrust = MinThrustNotToFallSpeed;
+	CurrentSpeed = MinThrustNotToFallSpeed;
 	Super::BeginPlay();
-	CurrentThrust = MinThrustSpeed;
-	CurrentSpeed = MinThrustSpeed;
 }
 
 // Called every frame
@@ -35,25 +38,58 @@ void AAircraftBasePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdatePosition(DeltaTime);
+	PrintStats();
 
 }
 
 // Called to bind functionality to input
-void AAircraftBasePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		return;
+	}
 }
+
 
 void AAircraftBasePawn::UpdatePosition(float DeltaTime)
 {
-	NewPosition = (CurrentSpeed * DeltaTime) * GetActorForwardVector();
-	AddActorWorldOffset(NewPosition);
+	CurrentSpeed = CalculateCurrentSpeed(DeltaTime);
+	AppliedGravity = CalculateApplyGravity();
 
-	AppliedGravity = FMath::GetMappedRangeValueClamped(
-		FVector2D(0, MaxThrustNotToFallSpeed),
+	NewPosition = (CurrentSpeed * DeltaTime) * GetActorForwardVector();
+	NewPosition = FVector(NewPosition.X, NewPosition.Y, NewPosition.Z - AppliedGravity);
+	//movement
+	AddActorWorldOffset(NewPosition, true, &OutHit);
+}
+
+
+float AAircraftBasePawn::CalculateApplyGravity()
+{
+	return FMath::GetMappedRangeValueClamped(
+		FVector2D(0, MinThrustNotToFallSpeed),
 		FVector2D(Gravity, 0),
 		CurrentSpeed
 	);
 }
 
+float AAircraftBasePawn::CalculateCurrentSpeed(float DeltaTime)
+{
+	if (CurrentSpeed < CurrentThrust)
+	{
+		return CurrentThrust;
+	}
+	else
+	{
+		return FMath::FInterpTo(CurrentSpeed, CurrentThrust, DeltaTime, Drag);
+	}
+}
 
+void AAircraftBasePawn::PrintStats()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Player Health: %.2f"), AppliedGravity));
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Player Health: %.2f"), CurrentThrust));
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Player Health: %.2f"), CurrentSpeed));
+}
