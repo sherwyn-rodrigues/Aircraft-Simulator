@@ -49,7 +49,11 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		return;
+		EnhancedInputComponent->BindAction(YawAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::YawInput);
+
+		EnhancedInputComponent->BindAction(PitchAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::PitchInput);
+
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::RollInput);
 	}
 }
 
@@ -92,4 +96,32 @@ void AAircraftBasePawn::PrintStats()
 	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Player Health: %.2f"), AppliedGravity));
 	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Player Health: %.2f"), CurrentThrust));
 	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Player Health: %.2f"), CurrentSpeed));
+}
+
+void AAircraftBasePawn::ThrottleInput(const FInputActionValue& Value)
+{
+}
+
+void AAircraftBasePawn::RollInput(const FInputActionValue& Value)
+{
+	FRotator NewRotation = GetActorRotation();
+	NewRotation.Roll += Value.Get<float>();
+	SetActorRotation(NewRotation);
+
+	UE_LOG(LogTemp, Warning, TEXT("%f"), Value.Get<float>());
+}
+
+void AAircraftBasePawn::PitchInput(const FInputActionValue& Value)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), Value.Get<float>());
+	FRotator NewRotation = GetActorRotation();
+	NewRotation.Pitch += Value.Get<float>();
+	SetActorRotation(NewRotation);
+}
+
+void AAircraftBasePawn::YawInput(const FInputActionValue& Value)
+{
+	FRotator NewRotation = GetActorRotation();
+	NewRotation.Yaw += Value.Get<float>();
+	SetActorRotation(NewRotation);
 }

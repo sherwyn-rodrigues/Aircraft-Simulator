@@ -6,6 +6,11 @@
 #include "GameFramework/Pawn.h"
 #include "AircraftBasePawn.generated.h"
 
+class UInputAction;
+class USpringArmComponent;
+class UCameraComponent;
+struct FInputActionValue;
+
 UCLASS()
 class AIRCRAFTSIMULATOR_API AAircraftBasePawn : public APawn
 {
@@ -25,6 +30,32 @@ protected:
 
 	void PrintStats();
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ThrottleAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* RollAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* PitchAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* YawAction;
+
+
+	UFUNCTION(BlueprintCallable)
+	void ThrottleInput(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintCallable)
+	void RollInput(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintCallable)
+	void PitchInput(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintCallable)
+	void YawInput(const FInputActionValue& Value);
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -36,10 +67,10 @@ public:
 	UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class UCameraComponent* Camera;
+	UCameraComponent* Camera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class USpringArmComponent* SpringArm;
+	USpringArmComponent* SpringArm;
 
 	void UpdatePosition(float DeltaTime);
 
