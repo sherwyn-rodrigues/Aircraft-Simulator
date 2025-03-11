@@ -15,11 +15,13 @@ AAircraftBasePawn::AAircraftBasePawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArm->SetupAttachment(StaticMesh);
-	SpringArm->TargetOffset.Z = 80.f;
+	SpringArm->SetupAttachment(SkeletalMesh);
+	SpringArm->TargetOffset.Z = 200.f;
+	SpringArm->TargetArmLength = 800;
+	SpringArm->SetRelativeLocation(FVector(0,0,280));
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
