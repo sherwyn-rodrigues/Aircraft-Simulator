@@ -106,24 +106,26 @@ void AAircraftBasePawn::ThrottleInput(const FInputActionValue& Value)
 
 void AAircraftBasePawn::RollInput(const FInputActionValue& Value)
 {
-	FRotator NewRotation = GetActorRotation();
+	FRotator NewRotation;
 	NewRotation.Roll += Value.Get<float>();
-	SetActorRotation(NewRotation);
+	//SetActorRotation(NewRotation);
+	AddActorLocalRotation(NewRotation);
 
 	UE_LOG(LogTemp, Warning, TEXT("%f"), Value.Get<float>());
 }
 
 void AAircraftBasePawn::PitchInput(const FInputActionValue& Value)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("%f"), Value.Get<float>());
-	FRotator NewRotation = GetActorRotation();
+	FRotator NewRotation;
 	NewRotation.Pitch += Value.Get<float>();
-	SetActorRotation(NewRotation);
+	//SetActorRotation(NewRotation);
+	AddActorLocalRotation(NewRotation);
 }
 
 void AAircraftBasePawn::YawInput(const FInputActionValue& Value)
 {
-	FRotator NewRotation = GetActorRotation();
+	FRotator NewRotation;
 	NewRotation.Yaw += Value.Get<float>();
-	SetActorRotation(NewRotation);
+	//SetActorRotation(NewRotation);
+	AddActorLocalRotation(NewRotation);
 }
