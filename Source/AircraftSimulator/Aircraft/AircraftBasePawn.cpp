@@ -56,6 +56,10 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(PitchAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::PitchInput);
 
 		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::RollInput);
+
+		EnhancedInputComponent->BindAction(LookAxisX, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundYaw);
+
+		EnhancedInputComponent->BindAction(LookAxisY, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundPitch);
 	}
 }
 
@@ -128,4 +132,24 @@ void AAircraftBasePawn::YawInput(const FInputActionValue& Value)
 	NewRotation.Yaw += Value.Get<float>();
 	//SetActorRotation(NewRotation);
 	AddActorLocalRotation(NewRotation);
+}
+
+void AAircraftBasePawn::LookAroundPitch(const FInputActionValue& Value)
+{
+	FRotator NewRotation;
+	NewRotation.Pitch += Value.Get<float>();
+	SpringArm->AddLocalRotation(NewRotation);
+	FRotator PlayerWorldRotation = SpringArm->GetRelativeRotation();
+	PlayerWorldRotation.Roll = 0;
+	SpringArm->SetRelativeRotation(PlayerWorldRotation);
+}
+
+void AAircraftBasePawn::LookAroundYaw(const FInputActionValue& Value)
+{
+	FRotator NewRotation;
+	NewRotation.Yaw += Value.Get<float>();
+	SpringArm->AddLocalRotation(NewRotation);
+	FRotator PlayerWorldRotation = SpringArm->GetRelativeRotation();
+	PlayerWorldRotation.Roll = 0;
+	SpringArm->SetRelativeRotation(PlayerWorldRotation);
 }

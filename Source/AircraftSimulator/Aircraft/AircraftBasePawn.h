@@ -42,6 +42,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* YawAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* LookAxisX;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* LookAxisY;
+
 
 	UFUNCTION(BlueprintCallable)
 	void ThrottleInput(const FInputActionValue& Value);
@@ -54,6 +60,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void YawInput(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintCallable)
+	void LookAroundYaw(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintCallable)
+	void LookAroundPitch(const FInputActionValue& Value);
 
 
 public:	
