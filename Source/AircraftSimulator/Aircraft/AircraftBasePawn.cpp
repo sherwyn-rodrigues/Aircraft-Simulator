@@ -75,7 +75,6 @@ void AAircraftBasePawn::UpdatePosition(float DeltaTime)
 	AddActorWorldOffset(NewPosition, true, &OutHit);
 }
 
-
 float AAircraftBasePawn::CalculateApplyGravity()
 {
 	return FMath::GetMappedRangeValueClamped(
@@ -152,4 +151,11 @@ void AAircraftBasePawn::LookAroundYaw(const FInputActionValue& Value)
 	FRotator PlayerWorldRotation = SpringArm->GetRelativeRotation();
 	PlayerWorldRotation.Roll = 0;
 	SpringArm->SetRelativeRotation(PlayerWorldRotation);
+}
+
+void AAircraftBasePawn::ResetCameraAngle()
+{
+	FRotator CurrentRelativeRotation = SpringArm->GetRelativeRotation();
+	FRotator TargetLocalRotation = FRotator(0, 0, 0);
+	//FMath::FInterpTo();
 }

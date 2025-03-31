@@ -112,4 +112,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FHitResult OutHit;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ResetCameraAngle();
 };
