@@ -41,6 +41,7 @@ void AAircraftBasePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	UpdatePosition(DeltaTime);
 	PrintStats();
+	ResetCameraAngle(DeltaTime);
 
 }
 
@@ -138,9 +139,7 @@ void AAircraftBasePawn::LookAroundPitch(const FInputActionValue& Value)
 	FRotator NewRotation;
 	NewRotation.Pitch += Value.Get<float>();
 	SpringArm->AddLocalRotation(NewRotation);
-	FRotator PlayerWorldRotation = SpringArm->GetRelativeRotation();
-	PlayerWorldRotation.Roll = 0;
-	SpringArm->SetRelativeRotation(PlayerWorldRotation);
+	ResetRoll();
 }
 
 void AAircraftBasePawn::LookAroundYaw(const FInputActionValue& Value)
@@ -148,14 +147,19 @@ void AAircraftBasePawn::LookAroundYaw(const FInputActionValue& Value)
 	FRotator NewRotation;
 	NewRotation.Yaw += Value.Get<float>();
 	SpringArm->AddLocalRotation(NewRotation);
+	ResetRoll();
+}
+
+void AAircraftBasePawn::ResetCameraAngle(float DeltaTime)
+{
+	FRotator CurrentRelativeRotation = SpringArm->GetRelativeRotation();
+	FRotator TargetLocalRotation = FMath::RInterpTo(CurrentRelativeRotation, FRotator(0.f, 0.f, 0.f), DeltaTime, 1.0f);
+	SpringArm->SetRelativeRotation(TargetLocalRotation);
+}
+
+void AAircraftBasePawn::ResetRoll()
+{
 	FRotator PlayerWorldRotation = SpringArm->GetRelativeRotation();
 	PlayerWorldRotation.Roll = 0;
 	SpringArm->SetRelativeRotation(PlayerWorldRotation);
-}
-
-void AAircraftBasePawn::ResetCameraAngle()
-{
-	FRotator CurrentRelativeRotation = SpringArm->GetRelativeRotation();
-	FRotator TargetLocalRotation = FRotator(0, 0, 0);
-	//FMath::FInterpTo();
 }

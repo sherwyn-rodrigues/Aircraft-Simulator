@@ -113,6 +113,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FHitResult OutHit;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void ResetCameraAngle();
+	UFUNCTION(BlueprintCallable)
+	void ResetCameraAngle(float DeltaTime);
+
+private:
+
+	void ResetRoll();
 };
