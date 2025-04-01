@@ -33,6 +33,7 @@ void AAircraftBasePawn::BeginPlay()
 	CurrentThrust = MinThrustNotToFallSpeed;
 	CurrentSpeed = MinThrustNotToFallSpeed;
 	Super::BeginPlay();
+	SetYawAndPitchLimits();
 }
 
 // Called every frame
@@ -41,7 +42,7 @@ void AAircraftBasePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	UpdatePosition(DeltaTime);
 	PrintStats();
-	ResetCameraAngle(DeltaTime);
+	//ResetCameraAngle();
 
 }
 
@@ -59,8 +60,10 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::RollInput);
 
 		EnhancedInputComponent->BindAction(LookAxisX, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundYaw);
+		EnhancedInputComponent->BindAction(LookAxisX, ETriggerEvent::Completed, this, &AAircraftBasePawn::TriggerResetCameraAngle);
 
 		EnhancedInputComponent->BindAction(LookAxisY, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundPitch);
+		EnhancedInputComponent->BindAction(LookAxisY, ETriggerEvent::Completed, this, &AAircraftBasePawn::TriggerResetCameraAngle);
 	}
 }
 
@@ -114,8 +117,6 @@ void AAircraftBasePawn::RollInput(const FInputActionValue& Value)
 	NewRotation.Roll += Value.Get<float>();
 	//SetActorRotation(NewRotation);
 	AddActorLocalRotation(NewRotation);
-
-	UE_LOG(LogTemp, Warning, TEXT("%f"), Value.Get<float>());
 }
 
 void AAircraftBasePawn::PitchInput(const FInputActionValue& Value)
@@ -138,6 +139,7 @@ void AAircraftBasePawn::LookAroundPitch(const FInputActionValue& Value)
 {
 	FRotator NewRotation;
 	NewRotation.Pitch += Value.Get<float>();
+
 	SpringArm->AddLocalRotation(NewRotation);
 	ResetRoll();
 }
@@ -146,15 +148,28 @@ void AAircraftBasePawn::LookAroundYaw(const FInputActionValue& Value)
 {
 	FRotator NewRotation;
 	NewRotation.Yaw += Value.Get<float>();
+
 	SpringArm->AddLocalRotation(NewRotation);
 	ResetRoll();
 }
 
-void AAircraftBasePawn::ResetCameraAngle(float DeltaTime)
+void AAircraftBasePawn::ResetCameraAngle()
 {
 	FRotator CurrentRelativeRotation = SpringArm->GetRelativeRotation();
-	FRotator TargetLocalRotation = FMath::RInterpTo(CurrentRelativeRotation, FRotator(0.f, 0.f, 0.f), DeltaTime, 1.0f);
-	SpringArm->SetRelativeRotation(TargetLocalRotation);
+	FRotator TargetLocalRotation = FMath::RInterpTo(CurrentRelativeRotation, FRotator(0.f, 0.f, 0.f), GetWorld()->GetDeltaSeconds(), 1.0f);
+
+	bool bNearlyEqualPitch = UKismetMathLibrary::NearlyEqual_FloatFloat(TargetLocalRotation.Pitch, 0, 1);
+	bool bNearlyEqualYaw = UKismetMathLibrary::NearlyEqual_FloatFloat(TargetLocalRotation.Yaw, 0, 1);
+
+	if (bNearlyEqualYaw && bNearlyEqualPitch)
+	{
+		SpringArm->SetRelativeRotation(FRotator(0,0,0));
+		GetWorldTimerManager().ClearTimer(TriggerResetCameraHandle);
+	}
+	else 
+	{
+		SpringArm->SetRelativeRotation(TargetLocalRotation);
+	}
 }
 
 void AAircraftBasePawn::ResetRoll()
@@ -162,4 +177,23 @@ void AAircraftBasePawn::ResetRoll()
 	FRotator PlayerWorldRotation = SpringArm->GetRelativeRotation();
 	PlayerWorldRotation.Roll = 0;
 	SpringArm->SetRelativeRotation(PlayerWorldRotation);
+}
+
+void AAircraftBasePawn::TriggerResetCameraAngle()
+{
+	GetWorldTimerManager().SetTimer(TriggerResetCameraHandle, this, &AAircraftBasePawn::ResetCameraAngle, 0.01f, true, 0.5f);
+}
+
+void AAircraftBasePawn::SetYawAndPitchLimits()
+{
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (APlayerCameraManager* CameraManager = PlayerController->PlayerCameraManager)
+		{
+			CameraManager->ViewYawMin = -CameraLookClamp;
+			CameraManager->ViewYawMax = CameraLookClamp;
+			CameraManager->ViewPitchMin = -CameraLookClamp;
+			CameraManager->ViewPitchMax = CameraLookClamp;
+		}
+	}
 }

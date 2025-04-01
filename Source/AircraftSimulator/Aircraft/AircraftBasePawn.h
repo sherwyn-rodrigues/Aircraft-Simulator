@@ -114,9 +114,19 @@ public:
 	FHitResult OutHit;
 
 	UFUNCTION(BlueprintCallable)
-	void ResetCameraAngle(float DeltaTime);
+	void ResetCameraAngle();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Camera")
+	float CameraLookClamp = 30;
 
 private:
 
 	void ResetRoll();
+
+	void TriggerResetCameraAngle();
+
+	FTimerHandle TriggerResetCameraHandle;
+
+	void SetYawAndPitchLimits();
+
 };
