@@ -33,7 +33,7 @@ void AAircraftBasePawn::BeginPlay()
 	CurrentThrust = MinThrustNotToFallSpeed;
 	CurrentSpeed = MinThrustNotToFallSpeed;
 	Super::BeginPlay();
-	SetYawAndPitchLimits();
+	//SetYawAndPitchLimits();
 }
 
 // Called every frame
@@ -140,8 +140,16 @@ void AAircraftBasePawn::LookAroundPitch(const FInputActionValue& Value)
 	FRotator NewRotation;
 	NewRotation.Pitch += Value.Get<float>();
 
-	SpringArm->AddLocalRotation(NewRotation);
-	ResetRoll();
+	if (Value.Get<float>() > 0 && SpringArm->GetRelativeRotation().Pitch < CameraLookClamp)
+	{
+		SpringArm->AddLocalRotation(NewRotation);
+		ResetRoll();
+	}
+	else if(Value.Get<float>() < 0 && SpringArm->GetRelativeRotation().Pitch > -CameraLookClamp)
+	{
+		SpringArm->AddLocalRotation(NewRotation);
+		ResetRoll();
+	}
 }
 
 void AAircraftBasePawn::LookAroundYaw(const FInputActionValue& Value)
@@ -149,8 +157,16 @@ void AAircraftBasePawn::LookAroundYaw(const FInputActionValue& Value)
 	FRotator NewRotation;
 	NewRotation.Yaw += Value.Get<float>();
 
-	SpringArm->AddLocalRotation(NewRotation);
-	ResetRoll();
+	if (Value.Get<float>() > 0 && SpringArm->GetRelativeRotation().Yaw < CameraLookClamp)
+	{
+		SpringArm->AddLocalRotation(NewRotation);
+		ResetRoll();
+	}
+	else if (Value.Get<float>() < 0 && SpringArm->GetRelativeRotation().Yaw > -CameraLookClamp)
+	{
+		SpringArm->AddLocalRotation(NewRotation);
+		ResetRoll();
+	}
 }
 
 void AAircraftBasePawn::ResetCameraAngle()
@@ -184,6 +200,7 @@ void AAircraftBasePawn::TriggerResetCameraAngle()
 	GetWorldTimerManager().SetTimer(TriggerResetCameraHandle, this, &AAircraftBasePawn::ResetCameraAngle, 0.01f, true, 0.5f);
 }
 
+//wont work for local rotations
 void AAircraftBasePawn::SetYawAndPitchLimits()
 {
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))

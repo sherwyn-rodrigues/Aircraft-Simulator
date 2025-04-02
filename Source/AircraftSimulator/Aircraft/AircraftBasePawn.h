@@ -117,7 +117,7 @@ public:
 	void ResetCameraAngle();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Camera")
-	float CameraLookClamp = 30;
+	float CameraLookClamp = 60;
 
 private:
 
