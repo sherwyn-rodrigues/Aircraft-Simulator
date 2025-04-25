@@ -42,7 +42,7 @@ void AAircraftBasePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	UpdatePosition(DeltaTime);
 	PrintStats();
-	//ResetCameraAngle();
+	UpdateSmoothedRotation(DeltaTime);
 
 }
 
@@ -54,14 +54,16 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(YawAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::YawInput);
+		EnhancedInputComponent->BindAction(YawAction, ETriggerEvent::Completed, this, &AAircraftBasePawn::YawInputCompleted);
 
 		EnhancedInputComponent->BindAction(PitchAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::PitchInput);
+		EnhancedInputComponent->BindAction(PitchAction, ETriggerEvent::Completed, this, &AAircraftBasePawn::PitchInputCompleted);
 
-		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::RollInput);
+		//EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::RollInput);
 
+		//Look Input
 		EnhancedInputComponent->BindAction(LookAxisX, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundYaw);
 		EnhancedInputComponent->BindAction(LookAxisX, ETriggerEvent::Completed, this, &AAircraftBasePawn::TriggerResetCameraAngle);
-
 		EnhancedInputComponent->BindAction(LookAxisY, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundPitch);
 		EnhancedInputComponent->BindAction(LookAxisY, ETriggerEvent::Completed, this, &AAircraftBasePawn::TriggerResetCameraAngle);
 	}
@@ -102,9 +104,9 @@ float AAircraftBasePawn::CalculateCurrentSpeed(float DeltaTime)
 
 void AAircraftBasePawn::PrintStats()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Player Health: %.2f"), AppliedGravity));
-	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Player Health: %.2f"), CurrentThrust));
-	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Player Health: %.2f"), CurrentSpeed));
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Gravity: %.2f"), AppliedGravity));
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Thrust : %.2f"), CurrentThrust));
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Current Speed Health: %.2f"), CurrentSpeed));
 }
 
 void AAircraftBasePawn::ThrottleInput(const FInputActionValue& Value)
@@ -121,19 +123,14 @@ void AAircraftBasePawn::RollInput(const FInputActionValue& Value)
 
 void AAircraftBasePawn::PitchInput(const FInputActionValue& Value)
 {
-	FRotator NewRotation;
-	NewRotation.Pitch += Value.Get<float>();
-	//SetActorRotation(NewRotation);
-	AddActorLocalRotation(NewRotation);
+	TargetPitchInput = Value.Get<float>();
 }
 
 void AAircraftBasePawn::YawInput(const FInputActionValue& Value)
 {
-	FRotator NewRotation;
-	NewRotation.Yaw += Value.Get<float>();
-	//SetActorRotation(NewRotation);
-	AddActorLocalRotation(NewRotation);
+	TargetYawInput = Value.Get<float>();
 }
+
 
 void AAircraftBasePawn::LookAroundPitch(const FInputActionValue& Value)
 {
@@ -213,4 +210,26 @@ void AAircraftBasePawn::SetYawAndPitchLimits()
 			CameraManager->ViewPitchMax = CameraLookClamp;
 		}
 	}
+}
+
+void AAircraftBasePawn::UpdateSmoothedRotation(float DeltaTime)
+{
+	SmoothedPitchInput = FMath::FInterpTo(SmoothedPitchInput, TargetPitchInput, DeltaTime, InterpSpeed);
+	SmoothedYawInput = FMath::FInterpTo(SmoothedYawInput, TargetYawInput, DeltaTime, InterpSpeed);
+
+	float PitchDelta = SmoothedPitchInput * RotationSpeed * DeltaTime;
+	float YawDelta = SmoothedYawInput * RotationSpeed * DeltaTime;
+
+	FRotator DeltaRotator(PitchDelta, YawDelta, 0);
+	AddActorLocalRotation(DeltaRotator);
+}
+
+void AAircraftBasePawn::PitchInputCompleted()
+{
+	TargetPitchInput = 0;
+}
+
+void AAircraftBasePawn::YawInputCompleted()
+{
+	TargetYawInput = 0;
 }

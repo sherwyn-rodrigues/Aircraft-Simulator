@@ -30,21 +30,17 @@ protected:
 
 	void PrintStats();
 
+	// Input Actions 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ThrottleAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* RollAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* PitchAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* YawAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* LookAxisX;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* LookAxisY;
 
@@ -55,17 +51,27 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void RollInput(const FInputActionValue& Value);
 
+	//Pitch Input
 	UFUNCTION(BlueprintCallable)
 	void PitchInput(const FInputActionValue& Value);
+	UFUNCTION(BlueprintCallable)
+	void PitchInputCompleted();
 
+	//Yaw Input
 	UFUNCTION(BlueprintCallable)
 	void YawInput(const FInputActionValue& Value);
+	UFUNCTION(BlueprintCallable)
+	void YawInputCompleted();
 
+	//Look Around Yaw and Pitch Input
 	UFUNCTION(BlueprintCallable)
 	void LookAroundYaw(const FInputActionValue& Value);
-
 	UFUNCTION(BlueprintCallable)
 	void LookAroundPitch(const FInputActionValue& Value);
+
+	// Smoothens rotation to make it feel better and not robotic
+	UFUNCTION(BlueprintCallable)
+	void UpdateSmoothedRotation(float DeltaTime);
 
 
 public:	
@@ -75,15 +81,19 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Skeletal Mesh component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent* SkeletalMesh;
-
+	
+	// Camera Component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* Camera;
 
+	//Spring Arm Component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArm;
 
+	//function to run on tick to give continous movement to jet
 	void UpdatePosition(float DeltaTime);
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
@@ -121,12 +131,28 @@ public:
 
 private:
 
+	//Resets the Look Around Camera 
+	UFUNCTION(BlueprintCallable)
 	void ResetRoll();
-
+	
+	UFUNCTION(BlueprintCallable)
 	void TriggerResetCameraAngle();
 
 	FTimerHandle TriggerResetCameraHandle;
 
 	void SetYawAndPitchLimits();
 
+	// New smooth controls
+
+	float TargetPitchInput = 0.0f;
+	float TargetYawInput = 0.0f;
+	float SmoothedPitchInput = 0.0f;
+	float SmoothedYawInput = 0.0f;
+
+	// Used For SMoothening the Rotation
+	UPROPERTY(EditAnywhere, Category = "Flight Control")
+	float RotationSpeed = 60.f;
+
+	UPROPERTY(EditAnywhere, Category = "Flight Control")
+	float InterpSpeed = 5.f;
 };
