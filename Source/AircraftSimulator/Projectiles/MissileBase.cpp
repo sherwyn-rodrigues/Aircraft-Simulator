@@ -7,13 +7,5 @@
 
 AMissileBase::AMissileBase()
 {
-	//initialise capsule component as set as root
-	CapsuleCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
-	RootComponent = CapsuleCollider;
-	StaticMesh->SetupAttachment(CapsuleCollider);
-
-	//Missile starts slow and then accelerates
-	ProjectileMovement->InitialSpeed = 0;
-	ProjectileMovement->MaxSpeed = 10000;
 
 }

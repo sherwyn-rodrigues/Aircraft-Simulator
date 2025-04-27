@@ -17,8 +17,4 @@ class AIRCRAFTSIMULATOR_API ABulletBase : public ABaseProjectile
 
 public:
 	ABulletBase();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	USphereComponent* SphereCollider;
-	
 };

@@ -43,13 +43,19 @@ protected:
 	UInputAction* LookAxisX;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* LookAxisY;
-
-
+	/*
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* FireMissiles;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* FireMachingGun;
+	*/
 	UFUNCTION(BlueprintCallable)
 	void ThrottleInput(const FInputActionValue& Value);
 
 	UFUNCTION(BlueprintCallable)
 	void RollInput(const FInputActionValue& Value);
+	UFUNCTION(BlueprintCallable)
+	void RollInputComplete();
 
 	//Pitch Input
 	UFUNCTION(BlueprintCallable)
@@ -72,6 +78,12 @@ protected:
 	// Smoothens rotation to make it feel better and not robotic
 	UFUNCTION(BlueprintCallable)
 	void UpdateSmoothedRotation(float DeltaTime);
+
+	UFUNCTION(BlueprintCallable)
+	void FireMissiles();
+
+	UFUNCTION(BlueprintCallable)
+	void FireMachineGun();
 
 
 public:	
@@ -146,12 +158,19 @@ private:
 
 	float TargetPitchInput = 0.0f;
 	float TargetYawInput = 0.0f;
+	float TargetRollInput = 0.0f;
 	float SmoothedPitchInput = 0.0f;
 	float SmoothedYawInput = 0.0f;
+	float SmoothedRollInput = 0.0f;
 
 	// Used For SMoothening the Rotation
 	UPROPERTY(EditAnywhere, Category = "Flight Control")
-	float RotationSpeed = 60.f;
+	float PitchRotationSpeed = 60.f;
+	UPROPERTY(EditAnywhere, Category = "Flight Control")
+	float YawRotationSpeed = 10.0f;
+	UPROPERTY(EditAnywhere, Category = "Flight Control")
+	float RollRotationSpeed = 60.0f;
+
 
 	UPROPERTY(EditAnywhere, Category = "Flight Control")
 	float InterpSpeed = 5.f;

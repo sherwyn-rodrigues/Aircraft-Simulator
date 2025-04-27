@@ -18,8 +18,5 @@ class AIRCRAFTSIMULATOR_API AMissileBase : public ABaseProjectile
 public:
 
 	AMissileBase();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UCapsuleComponent* CapsuleCollider;
 	
 };

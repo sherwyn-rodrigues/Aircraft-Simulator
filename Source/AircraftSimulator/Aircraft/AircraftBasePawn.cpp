@@ -59,7 +59,8 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(PitchAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::PitchInput);
 		EnhancedInputComponent->BindAction(PitchAction, ETriggerEvent::Completed, this, &AAircraftBasePawn::PitchInputCompleted);
 
-		//EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::RollInput);
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::RollInput);
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Completed, this, &AAircraftBasePawn::RollInputComplete);
 
 		//Look Input
 		EnhancedInputComponent->BindAction(LookAxisX, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundYaw);
@@ -115,10 +116,7 @@ void AAircraftBasePawn::ThrottleInput(const FInputActionValue& Value)
 
 void AAircraftBasePawn::RollInput(const FInputActionValue& Value)
 {
-	FRotator NewRotation;
-	NewRotation.Roll += Value.Get<float>();
-	//SetActorRotation(NewRotation);
-	AddActorLocalRotation(NewRotation);
+	TargetRollInput = Value.Get<float>();
 }
 
 void AAircraftBasePawn::PitchInput(const FInputActionValue& Value)
@@ -216,12 +214,24 @@ void AAircraftBasePawn::UpdateSmoothedRotation(float DeltaTime)
 {
 	SmoothedPitchInput = FMath::FInterpTo(SmoothedPitchInput, TargetPitchInput, DeltaTime, InterpSpeed);
 	SmoothedYawInput = FMath::FInterpTo(SmoothedYawInput, TargetYawInput, DeltaTime, InterpSpeed);
+	SmoothedRollInput = FMath::FInterpTo(SmoothedRollInput, TargetRollInput, DeltaTime, InterpSpeed);
 
-	float PitchDelta = SmoothedPitchInput * RotationSpeed * DeltaTime;
-	float YawDelta = SmoothedYawInput * RotationSpeed * DeltaTime;
+	float PitchDelta = SmoothedPitchInput * PitchRotationSpeed * DeltaTime;
+	float YawDelta = SmoothedYawInput * YawRotationSpeed * DeltaTime;
+	float RollDelta = SmoothedRollInput * RollRotationSpeed * DeltaTime;
 
-	FRotator DeltaRotator(PitchDelta, YawDelta, 0);
+	FRotator DeltaRotator(PitchDelta, YawDelta, RollDelta);
 	AddActorLocalRotation(DeltaRotator);
+}
+
+void AAircraftBasePawn::FireMissiles()
+{
+	return;
+}
+
+void AAircraftBasePawn::FireMachineGun()
+{
+	return;
 }
 
 void AAircraftBasePawn::PitchInputCompleted()
@@ -232,4 +242,9 @@ void AAircraftBasePawn::PitchInputCompleted()
 void AAircraftBasePawn::YawInputCompleted()
 {
 	TargetYawInput = 0;
+}
+
+void AAircraftBasePawn::RollInputComplete()
+{
+	TargetRollInput = 0;
 }
