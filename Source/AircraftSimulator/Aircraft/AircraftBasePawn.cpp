@@ -53,6 +53,7 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
+		//player movement input
 		EnhancedInputComponent->BindAction(YawAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::YawInput);
 		EnhancedInputComponent->BindAction(YawAction, ETriggerEvent::Completed, this, &AAircraftBasePawn::YawInputCompleted);
 
@@ -67,9 +68,12 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(LookAxisX, ETriggerEvent::Completed, this, &AAircraftBasePawn::TriggerResetCameraAngle);
 		EnhancedInputComponent->BindAction(LookAxisY, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundPitch);
 		EnhancedInputComponent->BindAction(LookAxisY, ETriggerEvent::Completed, this, &AAircraftBasePawn::TriggerResetCameraAngle);
+
+		//weapons Input
+		EnhancedInputComponent->BindAction(FireMissilesInput, ETriggerEvent::Started, this, &AAircraftBasePawn::FireMissiles);
+		EnhancedInputComponent->BindAction(FireMachingGunInput, ETriggerEvent::Started, this, &AAircraftBasePawn::FireMachineGun);
 	}
 }
-
 
 void AAircraftBasePawn::UpdatePosition(float DeltaTime)
 {
@@ -226,11 +230,13 @@ void AAircraftBasePawn::UpdateSmoothedRotation(float DeltaTime)
 
 void AAircraftBasePawn::FireMissiles()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Missiles"));
 	return;
 }
 
 void AAircraftBasePawn::FireMachineGun()
 {
+	UE_LOG(LogTemp, Warning, TEXT("MachineGun"));
 	return;
 }
 

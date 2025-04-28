@@ -43,12 +43,11 @@ protected:
 	UInputAction* LookAxisX;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* LookAxisY;
-	/*
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* FireMissiles;
+	UInputAction* FireMissilesInput;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* FireMachingGun;
-	*/
+	UInputAction* FireMachingGunInput;
+	
 	UFUNCTION(BlueprintCallable)
 	void ThrottleInput(const FInputActionValue& Value);
 
