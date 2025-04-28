@@ -2,4 +2,20 @@
 
 
 #include "AircraftSimulator/Controller-GameMode/AircraftGameMode.h"
+#include "AircraftSimulator/Projectiles/ProjectilePool/BulletProjectilePool.h"
+#include "AircraftSimulator/Projectiles/ProjectilePool/MissileProjectilePool.h"
 
+void AAircraftGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (BulletPoolClass)
+	{
+		BulletPoolInstance = GetWorld()->SpawnActor<ABulletProjectilePool>(BulletPoolClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	}
+
+	if (MissilePoolClass)
+	{
+		MissilePoolInstance = GetWorld()->SpawnActor<AMissileProjectilePool>(MissilePoolClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	}
+}

@@ -7,4 +7,5 @@
 
 ABulletBase::ABulletBase()
 {
+	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollider"));
 }

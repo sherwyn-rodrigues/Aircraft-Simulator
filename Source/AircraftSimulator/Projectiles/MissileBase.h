@@ -15,8 +15,19 @@ class AIRCRAFTSIMULATOR_API AMissileBase : public ABaseProjectile
 {
 	GENERATED_BODY()
 
+
+protected:
+
+	virtual float GetProjectileStartSpeed(float OwnerCurrentSpeed) override;
+
+
 public:
 
 	AMissileBase();
-	
+
+	virtual void Tick(float DeltaTime) override;
+
+private:
+	float CurrentSpeed = 0;
+
 };

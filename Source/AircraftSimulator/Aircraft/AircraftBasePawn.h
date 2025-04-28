@@ -48,9 +48,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* FireMachingGunInput;
 	
+	//Throttle Input
 	UFUNCTION(BlueprintCallable)
 	void ThrottleInput(const FInputActionValue& Value);
 
+	//Roll Input
 	UFUNCTION(BlueprintCallable)
 	void RollInput(const FInputActionValue& Value);
 	UFUNCTION(BlueprintCallable)
@@ -78,9 +80,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void UpdateSmoothedRotation(float DeltaTime);
 
+	//Weapons Input
 	UFUNCTION(BlueprintCallable)
 	void FireMissiles();
-
 	UFUNCTION(BlueprintCallable)
 	void FireMachineGun();
 
@@ -91,6 +93,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 
 	// Skeletal Mesh component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -103,6 +106,17 @@ public:
 	//Spring Arm Component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArm;
+
+	//Maching Gun Projectile SpawnPoint
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USceneComponent* BulletsSpawnPoint;
+
+	//Missile Projectile Spawn Points Note: 2 Spawn Points
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USceneComponent* LeftMissileSpawnPoint;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USceneComponent* RightMissileSpawnPoint;
+
 
 	//function to run on tick to give continous movement to jet
 	void UpdatePosition(float DeltaTime);
@@ -173,4 +187,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Flight Control")
 	float InterpSpeed = 5.f;
+
+	bool isLeftMissileSpawn = true;
 };

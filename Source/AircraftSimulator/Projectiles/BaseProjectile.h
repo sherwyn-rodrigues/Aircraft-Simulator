@@ -48,7 +48,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ResetProjectilToPool();
 
-	virtual float GetProjectileStartSpeed(float OwnerCurrentSpeed) const;
+	virtual float GetProjectileStartSpeed(float OwnerCurrentSpeed);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Movement");
 	float ProjectileMaxSpeed = 10000;

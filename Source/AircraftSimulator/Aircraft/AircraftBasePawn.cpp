@@ -25,6 +25,11 @@ AAircraftBasePawn::AAircraftBasePawn()
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	//Spawn points for maching gun and missile
+	BulletsSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("BulletSpawnPoint"));
+	LeftMissileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("LeftMissileSpawnPoint"));
+	RightMissileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("RightMissileSpawnPoint"));
 }
 
 // Called when the game starts or when spawned
@@ -231,13 +236,14 @@ void AAircraftBasePawn::UpdateSmoothedRotation(float DeltaTime)
 void AAircraftBasePawn::FireMissiles()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Missiles"));
-	return;
+
+
+	isLeftMissileSpawn = !isLeftMissileSpawn;
 }
 
 void AAircraftBasePawn::FireMachineGun()
 {
 	UE_LOG(LogTemp, Warning, TEXT("MachineGun"));
-	return;
 }
 
 void AAircraftBasePawn::PitchInputCompleted()

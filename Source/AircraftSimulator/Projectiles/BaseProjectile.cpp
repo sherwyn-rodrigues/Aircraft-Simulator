@@ -13,6 +13,7 @@ ABaseProjectile::ABaseProjectile()
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+	ProjectileMovement->ProjectileGravityScale = 0;
 
 	bIsAvailable = true;
 
@@ -46,18 +47,29 @@ void ABaseProjectile::LaunchProjectile(FVector LaunchLocation, FVector LaunchDir
 	ProjectileMovement->Velocity = LaunchDirection.GetSafeNormal() * GetProjectileStartSpeed(OwnersCurrentSpeed);
 	ProjectileMovement->InitialSpeed = ProjectileMovement->Velocity.Size();
 	ProjectileMovement->MaxSpeed = ProjectileMaxSpeed;
-	//ProjectileMovement->accele
+
+	bIsAvailable = false;
 }
 
 void ABaseProjectile::ResetProjectilToPool()
 {
+	SetActorEnableCollision(false);
+	SetActorHiddenInGame(true);
+
+	ProjectileMovement->StopMovementImmediately();
+	ProjectileMovement->Deactivate();
+
+	SetActorLocation(FVector(0, 0, -10000));
+	SetActorRotation(FRotator::ZeroRotator);
+	 
+	bIsAvailable = true;
 }
 
-float ABaseProjectile::GetProjectileStartSpeed(float OwnerCurrentSpeed) const
+float ABaseProjectile::GetProjectileStartSpeed(float OwnerCurrentSpeed)
 {
-	//By default speed from current actor speed to projectile max speed
-	// change this to return MaxProjectileSpeed in bullet base class
-	return OwnerCurrentSpeed;
+	//By default Projectile Max Speed
+	// change this to return OwnerCurrentSpeed in Missile base classs and increase velocity in tick
+	return ProjectileMaxSpeed;
 }
 
 void ABaseProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
