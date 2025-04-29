@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+#include "AircraftSimulator//Interfaces/ProjectilePoolInterface.h"
+
 class ABulletProjectilePool;
 class AMissileProjectilePool;
+
 #include "AircraftGameMode.generated.h"
 
 /**
@@ -13,7 +16,7 @@ class AMissileProjectilePool;
  */
 
 UCLASS()
-class AIRCRAFTSIMULATOR_API AAircraftGameMode : public AGameMode
+class AIRCRAFTSIMULATOR_API AAircraftGameMode : public AGameMode, public IProjectilePoolInterface
 {
 	GENERATED_BODY()
 
@@ -28,9 +31,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Pool")
 	TSubclassOf<AMissileProjectilePool> MissilePoolClass;
+
+	virtual class AMissileProjectilePool* GetMissilePool_Implementation() const ;
+	virtual class ABulletProjectilePool* GetBulletPool_Implementation() const ;
 	
 private:
 	
-	ABulletProjectilePool* BulletPoolInstance;
 	AMissileProjectilePool* MissilePoolInstance;
+	ABulletProjectilePool* BulletPoolInstance;
 };

@@ -8,4 +8,6 @@
 ABulletBase::ABulletBase()
 {
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollider"));
+	RootComponent = CollisionComponent;
+	StaticMesh->SetupAttachment(CollisionComponent);
 }

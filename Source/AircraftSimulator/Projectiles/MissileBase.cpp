@@ -8,7 +8,11 @@
 
 AMissileBase::AMissileBase()
 {
+	RotatedPivot = CreateDefaultSubobject<USceneComponent>(TEXT("RotatedPivot"));
+	RootComponent = RotatedPivot;
 	CollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
+	CollisionComponent->SetupAttachment(RotatedPivot);
+	StaticMesh->SetupAttachment(CollisionComponent);
 }
 
 void AMissileBase::Tick(float DeltaTime)

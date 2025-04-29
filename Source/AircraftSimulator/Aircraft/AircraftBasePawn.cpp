@@ -8,6 +8,11 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Kismet/GameplayStatics.h"
+#include "AircraftSimulator/Interfaces/ProjectilePoolInterface.h"
+#include "GameFramework/GameModeBase.h"
+#include "AircraftSimulator/Projectiles/BaseProjectile.h"
+#include "AircraftSimulator/Projectiles/ProjectilePool/MissileProjectilePool.h"
 
 // Sets default values
 AAircraftBasePawn::AAircraftBasePawn()
@@ -16,6 +21,7 @@ AAircraftBasePawn::AAircraftBasePawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
+	RootComponent = SkeletalMesh;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(SkeletalMesh);
@@ -28,8 +34,11 @@ AAircraftBasePawn::AAircraftBasePawn()
 
 	//Spawn points for maching gun and missile
 	BulletsSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("BulletSpawnPoint"));
+	BulletsSpawnPoint->SetupAttachment(SkeletalMesh);
 	LeftMissileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("LeftMissileSpawnPoint"));
+	LeftMissileSpawnPoint->SetupAttachment(SkeletalMesh);
 	RightMissileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("RightMissileSpawnPoint"));
+	RightMissileSpawnPoint->SetupAttachment(SkeletalMesh);
 }
 
 // Called when the game starts or when spawned
@@ -38,7 +47,13 @@ void AAircraftBasePawn::BeginPlay()
 	CurrentThrust = MinThrustNotToFallSpeed;
 	CurrentSpeed = MinThrustNotToFallSpeed;
 	Super::BeginPlay();
-	//SetYawAndPitchLimits();
+
+	AGameModeBase* GameModeRef = UGameplayStatics::GetGameMode(this);
+	if (GameModeRef && GameModeRef->Implements<UProjectilePoolInterface>())
+	{
+		MissilePoolRef = IProjectilePoolInterface::Execute_GetMissilePool(GameModeRef);
+		BulletPoolRef = IProjectilePoolInterface::Execute_GetBulletPool(GameModeRef);
+	}
 }
 
 // Called every frame
@@ -236,8 +251,14 @@ void AAircraftBasePawn::UpdateSmoothedRotation(float DeltaTime)
 void AAircraftBasePawn::FireMissiles()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Missiles"));
-
-
+	if (MissilePoolRef)
+	{
+		ABaseProjectile* MissileToLaunch = MissilePoolRef->GetAvailableProjectile();
+		if (MissileToLaunch)
+		{
+			MissileToLaunch->LaunchProjectile(GetActorLocation(), GetActorForwardVector(), CurrentSpeed);
+		}
+	}
 	isLeftMissileSpawn = !isLeftMissileSpawn;
 }
 

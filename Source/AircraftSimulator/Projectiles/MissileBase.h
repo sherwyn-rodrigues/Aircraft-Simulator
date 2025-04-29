@@ -27,7 +27,11 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	// this component is added so that the capsule colliders pivot can be rotated 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USceneComponent* RotatedPivot;
+
 private:
-	float CurrentSpeed = 0;
+	float CurrentSpeed;
 
 };

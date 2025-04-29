@@ -9,13 +9,24 @@ void AAircraftGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (MissilePoolClass)
+	{
+		MissilePoolInstance = GetWorld()->SpawnActor<AMissileProjectilePool>(MissilePoolClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	}
+
 	if (BulletPoolClass)
 	{
 		BulletPoolInstance = GetWorld()->SpawnActor<ABulletProjectilePool>(BulletPoolClass, FVector::ZeroVector, FRotator::ZeroRotator);
 	}
 
-	if (MissilePoolClass)
-	{
-		MissilePoolInstance = GetWorld()->SpawnActor<AMissileProjectilePool>(MissilePoolClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	}
+}
+
+AMissileProjectilePool* AAircraftGameMode::GetMissilePool_Implementation() const
+{
+	return MissilePoolInstance;
+}
+
+ABulletProjectilePool* AAircraftGameMode::GetBulletPool_Implementation() const
+{
+	return BulletPoolInstance;
 }

@@ -108,13 +108,13 @@ public:
 	USpringArmComponent* SpringArm;
 
 	//Maching Gun Projectile SpawnPoint
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USceneComponent* BulletsSpawnPoint;
 
 	//Missile Projectile Spawn Points Note: 2 Spawn Points
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USceneComponent* LeftMissileSpawnPoint;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USceneComponent* RightMissileSpawnPoint;
 
 
@@ -189,4 +189,7 @@ private:
 	float InterpSpeed = 5.f;
 
 	bool isLeftMissileSpawn = true;
+
+	class AMissileProjectilePool* MissilePoolRef;
+	class ABulletProjectilePool* BulletPoolRef;
 };
