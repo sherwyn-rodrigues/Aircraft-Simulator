@@ -44,10 +44,10 @@ void ABaseProjectile::LaunchProjectile(FVector LaunchLocation, FVector LaunchDir
 
 	SetActorEnableCollision(true);
 	SetActorHiddenInGame(false);
-
 	ProjectileMovement->Velocity = LaunchDirection.GetSafeNormal() * GetProjectileStartSpeed(OwnersCurrentSpeed);
 	ProjectileMovement->InitialSpeed = ProjectileMovement->Velocity.Size();
 	ProjectileMovement->MaxSpeed = ProjectileMaxSpeed;
+	ProjectileMovement->Activate();
 
 	bIsAvailable = false;
 }

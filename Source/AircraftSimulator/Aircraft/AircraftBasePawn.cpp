@@ -256,7 +256,7 @@ void AAircraftBasePawn::FireMissiles()
 		ABaseProjectile* MissileToLaunch = MissilePoolRef->GetAvailableProjectile();
 		if (MissileToLaunch)
 		{
-			MissileToLaunch->LaunchProjectile(GetActorLocation(), GetActorForwardVector(), CurrentSpeed);
+			MissileToLaunch->LaunchProjectile(GetMissileSpawnPoint(), GetActorForwardVector(), CurrentSpeed);
 		}
 	}
 	isLeftMissileSpawn = !isLeftMissileSpawn;
@@ -280,4 +280,13 @@ void AAircraftBasePawn::YawInputCompleted()
 void AAircraftBasePawn::RollInputComplete()
 {
 	TargetRollInput = 0;
+}
+
+FVector AAircraftBasePawn::GetMissileSpawnPoint()
+{
+	if (isLeftMissileSpawn)
+		return LeftMissileSpawnPoint->GetComponentLocation();
+	else
+		return RightMissileSpawnPoint->GetComponentLocation();
+
 }

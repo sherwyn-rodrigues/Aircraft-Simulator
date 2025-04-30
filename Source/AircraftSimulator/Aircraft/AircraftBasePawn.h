@@ -192,4 +192,6 @@ private:
 
 	class AMissileProjectilePool* MissilePoolRef;
 	class ABulletProjectilePool* BulletPoolRef;
+
+	FVector GetMissileSpawnPoint();
 };
