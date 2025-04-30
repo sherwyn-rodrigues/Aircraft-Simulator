@@ -58,6 +58,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Movement")
 	float ProjectileAcceleration = 5000;
 
+	/**Time taken to reset projectile after launch */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	float ProjectileDestroyTime = 5;
+
 
 private:
 

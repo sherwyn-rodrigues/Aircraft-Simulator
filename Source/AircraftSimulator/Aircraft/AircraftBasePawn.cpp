@@ -13,6 +13,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "AircraftSimulator/Projectiles/BaseProjectile.h"
 #include "AircraftSimulator/Projectiles/ProjectilePool/MissileProjectilePool.h"
+#include "AircraftSimulator/Projectiles/ProjectilePool/BulletProjectilePool.h"
 
 // Sets default values
 AAircraftBasePawn::AAircraftBasePawn()
@@ -92,6 +93,9 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		//weapons Input
 		EnhancedInputComponent->BindAction(FireMissilesInput, ETriggerEvent::Started, this, &AAircraftBasePawn::FireMissiles);
 		EnhancedInputComponent->BindAction(FireMachingGunInput, ETriggerEvent::Started, this, &AAircraftBasePawn::FireMachineGun);
+		EnhancedInputComponent->BindAction(FireMachingGunInput, ETriggerEvent::Completed, this, &AAircraftBasePawn::StopMachineGun);
+		EnhancedInputComponent->BindAction(FireMachingGunInput, ETriggerEvent::Canceled, this, &AAircraftBasePawn::StopMachineGun);
+
 	}
 }
 
@@ -248,23 +252,14 @@ void AAircraftBasePawn::UpdateSmoothedRotation(float DeltaTime)
 	AddActorLocalRotation(DeltaRotator);
 }
 
-void AAircraftBasePawn::FireMissiles()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Missiles"));
-	if (MissilePoolRef)
-	{
-		ABaseProjectile* MissileToLaunch = MissilePoolRef->GetAvailableProjectile();
-		if (MissileToLaunch)
-		{
-			MissileToLaunch->LaunchProjectile(GetMissileSpawnPoint(), GetActorForwardVector(), CurrentSpeed);
-		}
-	}
-	isLeftMissileSpawn = !isLeftMissileSpawn;
-}
-
 void AAircraftBasePawn::FireMachineGun()
 {
-	UE_LOG(LogTemp, Warning, TEXT("MachineGun"));
+	GetWorldTimerManager().SetTimer(MachineGunTriggerHandle, this, &AAircraftBasePawn::ActivateMachineGun, BuklletFireInterval, true);
+}
+
+void AAircraftBasePawn::StopMachineGun()
+{
+	GetWorldTimerManager().ClearTimer(MachineGunTriggerHandle);
 }
 
 void AAircraftBasePawn::PitchInputCompleted()
@@ -282,11 +277,50 @@ void AAircraftBasePawn::RollInputComplete()
 	TargetRollInput = 0;
 }
 
-FVector AAircraftBasePawn::GetMissileSpawnPoint()
+void AAircraftBasePawn::FireMissiles()
 {
-	if (isLeftMissileSpawn)
-		return LeftMissileSpawnPoint->GetComponentLocation();
-	else
-		return RightMissileSpawnPoint->GetComponentLocation();
+	//UE_LOG(LogTemp, Warning, TEXT("Missiles"));
+	if (MissilePoolRef)
+	{
+		ABaseProjectile* MissileToLaunch = MissilePoolRef->GetAvailableProjectile();
+		if (MissileToLaunch)
+		{
+			if (isLeftMissileSpawn && bIsLeftMissileSlotAvailable)
+			{
+				MissileToLaunch->LaunchProjectile(LeftMissileSpawnPoint->GetComponentLocation(), GetActorForwardVector(), CurrentSpeed);
+				isLeftMissileSpawn = !isLeftMissileSpawn;
+				bIsLeftMissileSlotAvailable = false;
+				GetWorldTimerManager().SetTimer(LeftMissileSlotResetHandle, this, &AAircraftBasePawn::ResetLeftMissileSlot, MissileReloadTime, false);
+			}
+			else if(!isLeftMissileSpawn && bIsRightMissileSlotAvailable)
+			{
+				MissileToLaunch->LaunchProjectile(RightMissileSpawnPoint->GetComponentLocation(), GetActorForwardVector(), CurrentSpeed);
+				isLeftMissileSpawn = !isLeftMissileSpawn;
+				bIsRightMissileSlotAvailable = false;
+				GetWorldTimerManager().SetTimer(RightMissileSlotResetHandle, this, &AAircraftBasePawn::ResetRightMissileSlot, MissileReloadTime, false);
+			}
+		}
+	}
+}
 
+void AAircraftBasePawn::ResetRightMissileSlot()
+{
+	bIsRightMissileSlotAvailable = true;
+	GetWorldTimerManager().ClearTimer(RightMissileSlotResetHandle);
+}
+
+void AAircraftBasePawn::ResetLeftMissileSlot()
+{
+	bIsLeftMissileSlotAvailable = true;
+	GetWorldTimerManager().ClearTimer(LeftMissileSlotResetHandle);
+}
+
+void AAircraftBasePawn::ActivateMachineGun()
+{
+	UE_LOG(LogTemp, Warning, TEXT("MachineGun"));
+	if (BulletPoolRef)
+	{
+		ABaseProjectile* BulletToLaunch = BulletPoolRef->GetAvailableProjectile();
+		BulletToLaunch->LaunchProjectile(BulletsSpawnPoint->GetComponentLocation(), GetActorForwardVector(), CurrentSpeed);
+	}
 }

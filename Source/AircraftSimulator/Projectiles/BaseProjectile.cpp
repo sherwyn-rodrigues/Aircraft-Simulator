@@ -50,6 +50,8 @@ void ABaseProjectile::LaunchProjectile(FVector LaunchLocation, FVector LaunchDir
 	ProjectileMovement->Activate();
 
 	bIsAvailable = false;
+	//Set projectileto destory after ProjectileDestroyTime
+	GetWorldTimerManager().SetTimer(ResetTimerHandle, this, &ABaseProjectile::ResetProjectilToPool, ProjectileDestroyTime, false);
 }
 
 void ABaseProjectile::ResetProjectilToPool()
@@ -64,6 +66,7 @@ void ABaseProjectile::ResetProjectilToPool()
 	SetActorRotation(FRotator::ZeroRotator);
 	 
 	bIsAvailable = true;
+	GetWorldTimerManager().ClearTimer(ResetTimerHandle);
 }
 
 float ABaseProjectile::GetProjectileStartSpeed(float OwnerCurrentSpeed)

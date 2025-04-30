@@ -80,11 +80,15 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void UpdateSmoothedRotation(float DeltaTime);
 
-	//Weapons Input
+	//Weapons Input function
 	UFUNCTION(BlueprintCallable)
 	void FireMissiles();
+
 	UFUNCTION(BlueprintCallable)
 	void FireMachineGun();
+
+	UFUNCTION(BlueprintCallable)
+	void StopMachineGun();
 
 
 public:	
@@ -148,6 +152,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FHitResult OutHit;
 
+	/**Reload time for each missile slot before it can be used again */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float MissileReloadTime = 3.0f;
+	
+	/**Interval between each bullet fired*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float BuklletFireInterval = 0.5f;
+
 	UFUNCTION(BlueprintCallable)
 	void ResetCameraAngle();
 
@@ -163,6 +175,7 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void TriggerResetCameraAngle();
 
+	// timer handle to reset projectile back to pool after launch 
 	FTimerHandle TriggerResetCameraHandle;
 
 	void SetYawAndPitchLimits();
@@ -193,5 +206,24 @@ private:
 	class AMissileProjectilePool* MissilePoolRef;
 	class ABulletProjectilePool* BulletPoolRef;
 
-	FVector GetMissileSpawnPoint();
+	//missile reload variables and functions 
+
+	//Booleans for left and right slot resp 
+	bool bIsLeftMissileSlotAvailable = true;
+	bool bIsRightMissileSlotAvailable = true;
+
+	//Timer Handles for left and right slot resp 
+	FTimerHandle RightMissileSlotResetHandle;
+	FTimerHandle LeftMissileSlotResetHandle;
+
+	void ResetRightMissileSlot();
+	void ResetLeftMissileSlot();
+
+	// Missile reload End 
+
+	// Timer Handle to manage machine gun start and end 
+	FTimerHandle MachineGunTriggerHandle;
+
+	void ActivateMachineGun();
+
 };
