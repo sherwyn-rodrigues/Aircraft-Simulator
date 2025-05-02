@@ -129,7 +129,7 @@ public:
 	float MinThrustNotToFallSpeed = 4000;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
-	float MaxThrust = 10000;
+	float MaxThrust = 15000;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
 	float Gravity = 9800;

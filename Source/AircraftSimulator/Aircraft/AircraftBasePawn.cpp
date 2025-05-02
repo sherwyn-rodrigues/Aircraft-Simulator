@@ -45,9 +45,9 @@ AAircraftBasePawn::AAircraftBasePawn()
 // Called when the game starts or when spawned
 void AAircraftBasePawn::BeginPlay()
 {
+	Super::BeginPlay();
 	CurrentThrust = MinThrustNotToFallSpeed;
 	CurrentSpeed = MinThrustNotToFallSpeed;
-	Super::BeginPlay();
 
 	AGameModeBase* GameModeRef = UGameplayStatics::GetGameMode(this);
 	if (GameModeRef && GameModeRef->Implements<UProjectilePoolInterface>())
@@ -61,9 +61,11 @@ void AAircraftBasePawn::BeginPlay()
 void AAircraftBasePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	UpdatePosition(DeltaTime);
-	PrintStats();
 	UpdateSmoothedRotation(DeltaTime);
+
+	PrintStats();
 
 }
 
@@ -83,6 +85,8 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::RollInput);
 		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Completed, this, &AAircraftBasePawn::RollInputComplete);
+
+		EnhancedInputComponent->BindAction(ThrottleAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::ThrottleInput);
 
 		//Look Input
 		EnhancedInputComponent->BindAction(LookAxisX, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundYaw);
@@ -140,6 +144,7 @@ void AAircraftBasePawn::PrintStats()
 
 void AAircraftBasePawn::ThrottleInput(const FInputActionValue& Value)
 {
+	CurrentThrust = FMath::Clamp(CurrentThrust + Value.Get<float>(), 0.f, MaxThrust);
 }
 
 void AAircraftBasePawn::RollInput(const FInputActionValue& Value)
@@ -317,7 +322,6 @@ void AAircraftBasePawn::ResetLeftMissileSlot()
 
 void AAircraftBasePawn::ActivateMachineGun()
 {
-	UE_LOG(LogTemp, Warning, TEXT("MachineGun"));
 	if (BulletPoolRef)
 	{
 		ABaseProjectile* BulletToLaunch = BulletPoolRef->GetAvailableProjectile();
