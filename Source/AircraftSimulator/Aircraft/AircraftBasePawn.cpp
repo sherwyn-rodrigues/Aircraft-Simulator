@@ -46,8 +46,13 @@ AAircraftBasePawn::AAircraftBasePawn()
 void AAircraftBasePawn::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentThrust = MinThrustNotToFallSpeed;
-	CurrentSpeed = MinThrustNotToFallSpeed;
+
+	ThrottleLevel = MinThrustNotToFallSpeed / MaxThrust;
+	ThrottleLevel = FMath::Clamp(ThrottleLevel, 0.f, 1.f);
+
+	// Let HandleThrottleInput use this to compute thrust and speed correctly in Tick
+	CurrentThrust = FMath::Lerp(0.f, MaxThrust, ThrottleLevel);
+	CurrentSpeed = CurrentThrust;
 
 	AGameModeBase* GameModeRef = UGameplayStatics::GetGameMode(this);
 	if (GameModeRef && GameModeRef->Implements<UProjectilePoolInterface>())
@@ -62,6 +67,7 @@ void AAircraftBasePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	HandleThrottleInput(DeltaTime);
 	UpdatePosition(DeltaTime);
 	UpdateSmoothedRotation(DeltaTime);
 
@@ -86,7 +92,11 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::RollInput);
 		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Completed, this, &AAircraftBasePawn::RollInputComplete);
 
-		EnhancedInputComponent->BindAction(ThrottleAction, ETriggerEvent::Triggered, this, &AAircraftBasePawn::ThrottleInput);
+		EnhancedInputComponent->BindAction(ThrottleUpAction, ETriggerEvent::Started, this, &AAircraftBasePawn::ThrottleUpPressed);
+		EnhancedInputComponent->BindAction(ThrottleUpAction, ETriggerEvent::Completed, this, &AAircraftBasePawn::ThrottleUpReleased);
+
+		EnhancedInputComponent->BindAction(ThrottleDownAction, ETriggerEvent::Started, this, &AAircraftBasePawn::ThrottleDownPressed);
+		EnhancedInputComponent->BindAction(ThrottleDownAction, ETriggerEvent::Completed, this, &AAircraftBasePawn::ThrottleDownReleased);
 
 		//Look Input
 		EnhancedInputComponent->BindAction(LookAxisX, ETriggerEvent::Triggered, this, &AAircraftBasePawn::LookAroundYaw);
@@ -125,14 +135,7 @@ float AAircraftBasePawn::CalculateApplyGravity()
 
 float AAircraftBasePawn::CalculateCurrentSpeed(float DeltaTime)
 {
-	if (CurrentSpeed < CurrentThrust)
-	{
-		return CurrentThrust;
-	}
-	else
-	{
-		return FMath::FInterpTo(CurrentSpeed, CurrentThrust, DeltaTime, Drag);
-	}
+	return FMath::FInterpTo(CurrentSpeed, CurrentThrust, DeltaTime, Drag);
 }
 
 void AAircraftBasePawn::PrintStats()
@@ -140,11 +143,6 @@ void AAircraftBasePawn::PrintStats()
 	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Gravity: %.2f"), AppliedGravity));
 	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Thrust : %.2f"), CurrentThrust));
 	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Green, FString::Printf(TEXT("Current Speed Health: %.2f"), CurrentSpeed));
-}
-
-void AAircraftBasePawn::ThrottleInput(const FInputActionValue& Value)
-{
-	CurrentThrust = FMath::Clamp(CurrentThrust + Value.Get<float>(), 0.f, MaxThrust);
 }
 
 void AAircraftBasePawn::RollInput(const FInputActionValue& Value)
@@ -327,4 +325,60 @@ void AAircraftBasePawn::ActivateMachineGun()
 		ABaseProjectile* BulletToLaunch = BulletPoolRef->GetAvailableProjectile();
 		BulletToLaunch->LaunchProjectile(BulletsSpawnPoint->GetComponentLocation(), GetActorForwardVector(), CurrentSpeed);
 	}
+}
+
+
+void AAircraftBasePawn::ThrottleUpPressed()
+{
+	bThrottleUpHeld = true;
+}
+
+void AAircraftBasePawn::ThrottleUpReleased()
+{
+	bThrottleUpHeld = false;
+}
+
+void AAircraftBasePawn::ThrottleDownPressed()
+{
+	bThrottleDownHeld = true;
+}
+
+void AAircraftBasePawn::ThrottleDownReleased()
+{
+	bThrottleDownHeld = false;
+}
+
+void AAircraftBasePawn::HandleThrottleInput(float DeltaTime)
+{
+	const bool bNeutralInput = bThrottleUpHeld && bThrottleDownHeld;
+
+	if (!bNeutralInput)
+	{
+		if (bThrottleUpHeld)
+		{
+			ThrottleLevel += AccelerationRate * DeltaTime;
+		}
+		else if (bThrottleDownHeld)
+		{
+			ThrottleLevel -= DecelerationRate * DeltaTime;
+		}
+		else
+		{
+			if (CurrentSpeed > MinThrustNotToFallSpeed)
+			{
+				ThrottleLevel -= PassiveThrottleDecayRate * DeltaTime;
+			}
+		}
+	}
+	else
+	{
+		if (CurrentSpeed > MinThrustNotToFallSpeed)
+		{
+			ThrottleLevel -= PassiveThrottleDecayRate * DeltaTime;
+		}
+		// Both held — no throttle change
+	}
+
+	ThrottleLevel = FMath::Clamp(ThrottleLevel, 0.f, 1.f);
+	CurrentThrust = FMath::Lerp(0.f, MaxThrust, ThrottleLevel);
 }

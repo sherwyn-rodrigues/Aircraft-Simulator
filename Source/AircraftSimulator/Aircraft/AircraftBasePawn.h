@@ -32,7 +32,9 @@ protected:
 
 	// Input Actions 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* ThrottleAction;
+	UInputAction* ThrottleUpAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ThrottleDownAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* RollAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -50,7 +52,14 @@ protected:
 	
 	//Throttle Input
 	UFUNCTION(BlueprintCallable)
-	void ThrottleInput(const FInputActionValue& Value);
+	void ThrottleUpPressed();
+	void ThrottleUpReleased();
+
+	void ThrottleDownPressed();
+	void ThrottleDownReleased();
+
+	void HandleThrottleInput(float DeltaTime);
+
 
 	//Roll Input
 	UFUNCTION(BlueprintCallable)
@@ -135,10 +144,10 @@ public:
 	float Gravity = 9800;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
-	float Drag = 0.25;
+	float Drag = 0.5;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float CurrentThrust = 0;
+	float CurrentThrust = 0.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float CurrentSpeed = 0;
@@ -165,6 +174,23 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Camera")
 	float CameraLookClamp = 60;
+
+	//Throttle related
+	bool bThrottleUpHeld = false;
+	bool bThrottleDownHeld = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Flight")
+	float ThrottleLevel = 0.0f; // Ranges from 0.0 to 1.0
+
+	UPROPERTY(EditDefaultsOnly, Category = "Flight|Thrust")
+	float AccelerationRate = 0.25f; // throttle level per second
+
+	UPROPERTY(EditDefaultsOnly, Category = "Flight|Thrust")
+	float DecelerationRate = 0.25f; // throttle level per second
+
+	UPROPERTY(EditDefaultsOnly, Category = "Flight|Thrust")
+	float PassiveThrottleDecayRate = 0.02f; // throttle level per second
+
 
 private:
 
@@ -225,5 +251,4 @@ private:
 	FTimerHandle MachineGunTriggerHandle;
 
 	void ActivateMachineGun();
-
 };
