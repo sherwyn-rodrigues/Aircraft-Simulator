@@ -141,7 +141,7 @@ public:
 	float MaxThrust = 15000;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
-	float Gravity = 9800;
+	float Gravity = 400;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Constants")
 	float Drag = 0.5;

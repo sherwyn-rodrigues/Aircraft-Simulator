@@ -29,6 +29,7 @@ AAircraftBasePawn::AAircraftBasePawn()
 	SpringArm->TargetOffset.Z = 200.f;
 	SpringArm->TargetArmLength = 800;
 	SpringArm->SetRelativeLocation(FVector(0,0,280));
+	SpringArm->bUsePawnControlRotation = false;
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
@@ -51,8 +52,8 @@ void AAircraftBasePawn::BeginPlay()
 	ThrottleLevel = FMath::Clamp(ThrottleLevel, 0.f, 1.f);
 
 	// Let HandleThrottleInput use this to compute thrust and speed correctly in Tick
-	CurrentThrust = FMath::Lerp(0.f, MaxThrust, ThrottleLevel);
-	CurrentSpeed = CurrentThrust;
+	CurrentThrust = MinThrustNotToFallSpeed;
+	CurrentSpeed = MinThrustNotToFallSpeed;
 
 	AGameModeBase* GameModeRef = UGameplayStatics::GetGameMode(this);
 	if (GameModeRef && GameModeRef->Implements<UProjectilePoolInterface>())
@@ -351,6 +352,7 @@ void AAircraftBasePawn::ThrottleDownReleased()
 void AAircraftBasePawn::HandleThrottleInput(float DeltaTime)
 {
 	const bool bNeutralInput = bThrottleUpHeld && bThrottleDownHeld;
+	const float MinThrottleLevel = MinThrustNotToFallSpeed / MaxThrust;
 
 	if (!bNeutralInput)
 	{
@@ -364,19 +366,34 @@ void AAircraftBasePawn::HandleThrottleInput(float DeltaTime)
 		}
 		else
 		{
-			if (CurrentSpeed > MinThrustNotToFallSpeed)
+			if (ThrottleLevel > MinThrottleLevel)
 			{
 				ThrottleLevel -= PassiveThrottleDecayRate * DeltaTime;
+				if (ThrottleLevel < MinThrottleLevel)
+				{
+					ThrottleLevel = MinThrottleLevel;
+				}
+			}
+			else if (ThrottleLevel < MinThrottleLevel)
+			{
+				ThrottleLevel = FMath::FInterpTo(ThrottleLevel, MinThrottleLevel, DeltaTime, 2.0f);
 			}
 		}
 	}
 	else
 	{
-		if (CurrentSpeed > MinThrustNotToFallSpeed)
+		if (ThrottleLevel > MinThrottleLevel)
 		{
 			ThrottleLevel -= PassiveThrottleDecayRate * DeltaTime;
+			if (ThrottleLevel < MinThrottleLevel)
+			{
+				ThrottleLevel = MinThrottleLevel;
+			}
 		}
-		// Both held — no throttle change
+		else if (ThrottleLevel < MinThrottleLevel)
+		{
+			ThrottleLevel = FMath::FInterpTo(ThrottleLevel, MinThrottleLevel, DeltaTime, 2.0f);
+		}
 	}
 
 	ThrottleLevel = FMath::Clamp(ThrottleLevel, 0.f, 1.f);
