@@ -26,9 +26,8 @@ AAircraftBasePawn::AAircraftBasePawn()
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(SkeletalMesh);
-	SpringArm->TargetOffset.Z = 200.f;
 	SpringArm->TargetArmLength = 800;
-	SpringArm->SetRelativeLocation(FVector(0,0,280));
+	SpringArm->SetRelativeLocation(FVector(0,0,500));
 	SpringArm->bUsePawnControlRotation = false;
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -72,6 +71,7 @@ void AAircraftBasePawn::Tick(float DeltaTime)
 	UpdatePosition(DeltaTime);
 	UpdateSmoothedRotation(DeltaTime);
 
+	//SpringArm->TargetOffset = GetActorUpVector() * 200;
 	PrintStats();
 
 }
