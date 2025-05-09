@@ -54,6 +54,7 @@ void AAircraftBasePawn::BeginPlay()
 	CurrentThrust = MinThrustNotToFallSpeed;
 	CurrentSpeed = MinThrustNotToFallSpeed;
 
+	//get missile and bullet pool references from game mode 
 	AGameModeBase* GameModeRef = UGameplayStatics::GetGameMode(this);
 	if (GameModeRef && GameModeRef->Implements<UProjectilePoolInterface>())
 	{
@@ -164,7 +165,7 @@ void AAircraftBasePawn::YawInput(const FInputActionValue& Value)
 
 void AAircraftBasePawn::LookAroundPitch(const FInputActionValue& Value)
 {
-	FRotator NewRotation;
+	FRotator NewRotation = FRotator::ZeroRotator;
 	NewRotation.Pitch += Value.Get<float>();
 
 	if (Value.Get<float>() > 0 && SpringArm->GetRelativeRotation().Pitch < CameraLookClamp)
@@ -181,7 +182,7 @@ void AAircraftBasePawn::LookAroundPitch(const FInputActionValue& Value)
 
 void AAircraftBasePawn::LookAroundYaw(const FInputActionValue& Value)
 {
-	FRotator NewRotation;
+	FRotator NewRotation = FRotator::ZeroRotator;
 	NewRotation.Yaw += Value.Get<float>();
 
 	if (Value.Get<float>() > 0 && SpringArm->GetRelativeRotation().Yaw < CameraLookClamp)
