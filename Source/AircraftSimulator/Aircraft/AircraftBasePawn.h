@@ -10,6 +10,7 @@ class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
+class UWeaponManager;
 
 UCLASS()
 class AIRCRAFTSIMULATOR_API AAircraftBasePawn : public APawn
@@ -49,6 +50,8 @@ protected:
 	UInputAction* FireMissilesInput;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* FireMachingGunInput;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* FlairInput;
 	
 	//Throttle Input
 	UFUNCTION(BlueprintCallable)
@@ -98,6 +101,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void StopMachineGun();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UWeaponManager* WeaponManager;
 
 
 public:	

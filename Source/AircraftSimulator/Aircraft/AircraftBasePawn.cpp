@@ -14,6 +14,7 @@
 #include "AircraftSimulator/Projectiles/BaseProjectile.h"
 #include "AircraftSimulator/Projectiles/ProjectilePool/MissileProjectilePool.h"
 #include "AircraftSimulator/Projectiles/ProjectilePool/BulletProjectilePool.h"
+#include "AircraftSimulator/Components/WeaponManager.h"
 
 // Sets default values
 AAircraftBasePawn::AAircraftBasePawn()
@@ -40,6 +41,9 @@ AAircraftBasePawn::AAircraftBasePawn()
 	LeftMissileSpawnPoint->SetupAttachment(SkeletalMesh);
 	RightMissileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("RightMissileSpawnPoint"));
 	RightMissileSpawnPoint->SetupAttachment(SkeletalMesh);
+
+	//WeaponManager
+	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
 }
 
 // Called when the game starts or when spawned
@@ -111,6 +115,9 @@ void AAircraftBasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(FireMachingGunInput, ETriggerEvent::Started, this, &AAircraftBasePawn::FireMachineGun);
 		EnhancedInputComponent->BindAction(FireMachingGunInput, ETriggerEvent::Completed, this, &AAircraftBasePawn::StopMachineGun);
 		EnhancedInputComponent->BindAction(FireMachingGunInput, ETriggerEvent::Canceled, this, &AAircraftBasePawn::StopMachineGun);
+
+		//Flair Input
+		EnhancedInputComponent->BindAction(FlairInput, ETriggerEvent::Started, WeaponManager, &UWeaponManager::UseFlair);
 
 	}
 }
